@@ -23,11 +23,22 @@ class ArxivCollector:
 
     def fetch_recent_papers(self):
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=self.days_back) # goes back x days (set from main + timezone aware)
+        client = arxiv.Client()
         search = arxiv.Search(query=self.query, max_results=self.max_results, sort_by=arxiv.SortCriterion.SubmittedDate)
         collected = []
-        for result in search.results():
-            if result.published < cutoff_date: #filter by date
+        print(f"searching for papers in categories: {', '.join(self.categories)}")
+        print(f"cutoff date: {cutoff_date.strftime('%Y-%m-%d')}\n")
+        for result in client.results(search):
+            print(f"\nprocessing: {result.get_short_id()}")
+            print(f"  title: {result.title[:60]}...")
+            print(f"  published: {result.published.strftime('%Y-%m-%d')}")
+            
+            if result.published < cutoff_date:
+                print(f"  too old (before {cutoff_date.strftime('%Y-%m-%d')})")
                 continue
+            
+            print(f"  recent paper")
+            
             paper = {
                 "arxiv_id": result.get_short_id(),
                 "title": result.title.strip(),
@@ -39,6 +50,8 @@ class ArxivCollector:
                 "arxiv_url": result.entry_id
             }
             collected.append(paper)
+            print(f"  added to results")
+            
         return collected
 
 if __name__ == "__main__":
