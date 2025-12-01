@@ -1,0 +1,50 @@
+import arxiv
+from datetime import datetime, timedelta, timezone
+
+class ArxivCollector:
+    def __init__(self, max_results=300, days_back=365,categories=None):
+        if categories is None: # default AI-related arXiv categories
+            categories = [
+                "cat:cs.CL", # nlp, llms
+                "cat:cs.LG", # machine learning
+                "cat:stat.ML", # statistics + ml theory
+                "cat:cs.AI", # artificial intelligence (general)
+                "cat:cs.CV", # computer vision
+                "cat:cs.RO", # robotics
+                "cat:cs.MA", # multi-agent systems
+                "cat:cs.DC", # distributed systems
+                "cat:cs.CR", # security
+                "cat:cs.SY" # systems
+            ] 
+        self.max_results = max_results
+        self.days_back = days_back
+        self.categories = categories
+        self.query = " OR ".join(categories) # build query string
+
+    def fetch_recent_papers(self):
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=self.days_back) # goes back x days (set from main + timezone aware)
+        search = arxiv.Search(query=self.query, max_results=self.max_results, sort_by=arxiv.SortCriterion.SubmittedDate)
+        collected = []
+        for result in search.results():
+            if result.published < cutoff_date: #filter by date
+                continue
+            paper = {
+                "arxiv_id": result.get_short_id(),
+                "title": result.title.strip(),
+                "abstract": result.summary.strip(),
+                "authors": [a.name for a in result.authors],
+                "categories": result.categories,
+                "published": result.published.strftime('%Y-%m-%d'),
+                "pdf_url": result.pdf_url,
+                "arxiv_url": result.entry_id
+            }
+            collected.append(paper)
+        return collected
+
+if __name__ == "__main__":
+    collector = ArxivCollector(max_results=10, days_back=365) # set max_results and days_back here
+    papers = collector.fetch_recent_papers()
+    print(f"fetched {len(papers)} papers from the last {collector.days_back} days!")
+    if papers:
+        print("example:")
+        print(papers[0])
