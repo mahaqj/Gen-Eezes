@@ -1,8 +1,5 @@
 arxiv
 requests
-feedparser
 beautifulsoup4
 lxml
 langdetect
-os
-re
