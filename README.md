@@ -1,5 +1,9 @@
 # Gen-Eezes
 
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/525b89dc-f20e-45a3-b91b-7d2045c4e581" width="200" alt="powerpuff">
+</div>
+
 ## Overview
 
 The data collection pipeline scrapes trending information from two sources:
