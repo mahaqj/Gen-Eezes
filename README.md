@@ -6,156 +6,186 @@
 
 ## Overview
 
-The data collection pipeline scrapes trending information from two sources:
-1. **GitHub Trending Repositories** - Tracks popular open-source projects
-2. **arXiv Research Papers** - Collects recent AI/ML academic papers
+This data collection pipeline scrapes trending GitHub repositories and arXiv research papers, automatically translates non-English content, and stores everything in MongoDB for easy querying and analysis.
 
-## Components
+## Project Structure
 
-### 1. GitHub Trending Collector (`github-trending-collector/scrape.py`)
+```
+Gen-Eezes/
+├── github-trending-collector/
+│   └── scrape.py              # GitHub trending scraper
+├── arxiv-collector/
+│   └── scrape.py              # arXiv paper scraper
+├── collector-mongodb/
+│   └── mongo.py               # Data viewer tool
+├── mongodb_storage.py         # MongoDB storage class
+└── requirements.txt
+```
 
-**What it does:**
-- Scrapes GitHub's trending page (daily/weekly/monthly)
-- Filters for **English-only** repositories using language detection
-- Filters for **recently active** repos (configurable, default: last 60 days)
-- Fetches detailed metadata via GitHub API (stars, forks, topics, etc.)
-- Downloads and cleans README files (removes HTML, badges, emojis, URLs)
-- Saves timestamped JSON files with all collected data
-
-**Key Features:**
-- GitHub API authentication support (5000 req/hour vs 60)
-- README text preprocessing and cleaning
-- Language detection to filter non-English repos
-- Activity-based filtering (only recent repos)
-- Rich metadata collection (topics, stars, creation date)
-
-**Output:** `data/github_trending_YYYYMMDD_HHMMSS.json`
-
----
-
-### 2. arXiv Paper Collector (`arxiv-collector/scrape.py`)
-
-**What it does:**
-- Queries arXiv API for papers in AI-related categories
-- Filters papers by publication date (configurable, default: last 365 days)
-- Collects paper metadata, abstracts, and author information
-- Saves timestamped JSON files for downstream processing
-
-**Categories Tracked:**
-- `cs.CL` - Natural Language Processing, LLMs
-- `cs.LG` - Machine Learning
-- `stat.ML` - Statistical Machine Learning Theory
-- `cs.AI` - Artificial Intelligence (General)
-- `cs.CV` - Computer Vision
-- `cs.RO` - Robotics
-- `cs.MA` - Multi-Agent Systems
-- `cs.DC` - Distributed Systems
-- `cs.CR` - Security & Cryptography
-- `cs.SY` - Systems & Control
-
-**Key Features:**
-- Multi-category search with OR logic
-- Date-based filtering for recent papers
-- Timezone-aware datetime handling
-- Detailed console logging for progress tracking
-- Author and category metadata extraction
-
-**Output:** `data/arxiv_papers_YYYYMMDD_HHMMSS.json`
-
----
-
-## Usage
-
-### GitHub Trending Collector
+## Installation
 
 ```bash
-cd github-trending-collector
+pip install -r requirements.txt
+```
 
-# Set GitHub token (optional but recommended)
+**Requirements:**
+- Python 3.8+
+- MongoDB running on localhost:27017
+- Internet connection
+
+## GitHub Trending Collector
+
+**File:** `github-trending-collector/scrape.py`
+
+Scrapes GitHub's trending page and collects:
+- Repository metadata (owner, name, stars, language, topics)
+- Cleaned README text
+- Activity dates (created, updated, pushed)
+- GitHub API data (forks, issues)
+
+**Features:**
+- Supports daily, weekly, monthly trending periods
+- Filters repos by activity (only updated in last N days)
+- Auto-detects language and translates non-English content to English
+- Cleans README files (removes HTML, badges, emojis, URLs)
+- GitHub API authentication for higher rate limits
+
+**Usage:**
+
+```bash
+# Set GitHub token (optional, increases rate limits from 60 to 5000 req/hour)
 $env:GITHUB_TOKEN="ghp_your_token_here"
 
-# Run scraper
+cd github-trending-collector
 python scrape.py
 ```
 
-**Configuration:**
-- `period`: "daily", "weekly", or "monthly"
+**Configuration (in code):**
+- `period`: "daily", "weekly", "monthly"
 - `active_days`: Filter repos updated in last N days (default: 60)
-- `github_token`: GitHub API token for higher rate limits
 
-### arXiv Paper Collector
+## arXiv Paper Collector
+
+**File:** `arxiv-collector/scrape.py`
+
+Scrapes arXiv API for research papers and collects:
+- Paper title, abstract, authors
+- Publication date and arXiv ID
+- Paper categories (cs.AI, cs.LG, etc.)
+- PDF and abstract URLs
+
+**Categories:**
+cs.AI, cs.CL, cs.CV, cs.LG, cs.MA, cs.RO, cs.DC, cs.CR, cs.SY, stat.ML
+
+**Usage:**
 
 ```bash
 cd arxiv-collector
-
-# Run scraper
 python scrape.py
 ```
 
-**Configuration:**
+**Configuration (in code):**
 - `max_results`: Maximum papers to fetch (default: 300)
-- `days_back`: Only fetch papers from last N days (default: 365)
-- `categories`: List of arXiv categories to search
+- `days_back`: Fetch papers from last N days (default: 365)
 
----
+## Data Viewer
 
-## Data Structure
+**File:** `collector-mongodb/mongo.py`
 
-### GitHub Repo Schema
+Interactive CLI tool to query and view stored data.
+
+**Usage:**
+
+```bash
+cd collector-mongodb
+python mongo.py
+```
+
+**Menu options:**
+1. View recent GitHub repos (last 10 with stars, language, description)
+2. Filter repos by programming language
+3. View recent arXiv papers (last 10 with authors, publish date)
+4. Filter papers by arXiv category
+5. View collection statistics (total repos and papers stored)
+6. Exit
+
+## MongoDB Storage
+
+**Database:** `gen_eezes`
+
+**Collections:**
+
+### github_repos
+
 ```json
 {
   "owner": "username",
   "name": "repo-name",
   "full_name": "username/repo-name",
-  "description": "Short description",
+  "description": "Repository description",
   "language": "Python",
-  "topics": ["ai", "machine-learning"],
+  "topics": ["ai", "ml"],
   "stars_trending": "1,234",
   "stars_total": 12345,
-  "readme_text": "Cleaned README content...",
+  "forks": 500,
+  "open_issues": 45,
+  "readme_text": "Cleaned README content",
   "created_at": "2025-01-01T00:00:00Z",
   "updated_at": "2025-12-01T00:00:00Z",
   "pushed_at": "2025-12-01T00:00:00Z",
-  "repo_url": "https://github.com/username/repo-name"
+  "repo_url": "https://github.com/username/repo-name",
+  "scraped_at": "2025-12-01T14:30:00Z"
 }
 ```
 
-### arXiv Paper Schema
+### arxiv_papers
+
 ```json
 {
   "arxiv_id": "2501.12345",
   "title": "Paper Title",
-  "abstract": "Full abstract text...",
+  "abstract": "Full abstract text",
   "authors": ["Author One", "Author Two"],
   "categories": ["cs.AI", "cs.LG"],
   "published": "2025-12-01",
   "pdf_url": "https://arxiv.org/pdf/2501.12345",
-  "arxiv_url": "https://arxiv.org/abs/2501.12345"
+  "arxiv_url": "https://arxiv.org/abs/2501.12345",
+  "scraped_at": "2025-12-01T14:30:00Z"
 }
 ```
 
----
+## Workflow
 
-## GitHub Token Setup
+```bash
+# 1. Set GitHub token
+$env:GITHUB_TOKEN="ghp_your_token_here"
 
-1. Go to https://github.com/settings/tokens
-2. Click "Generate new token (classic)"
-3. Select scope: `public_repo`
-4. Copy token and set environment variable:
-   ```powershell
-   $env:GITHUB_TOKEN="ghp_your_token_here"
-   ```
+# 2. Scrape GitHub trending
+cd github-trending-collector
+python scrape.py
 
-**Rate Limits:**
-- Without token: 60 requests/hour
-- With token: 5,000 requests/hour (FREE!)
+# 3. Scrape arXiv papers
+cd ../arxiv-collector
+python scrape.py
 
----
+# 4. View all data
+cd ../collector-mongodb
+python mongo.py
+```
 
-## Output
+## Key Features
 
-All data is saved in timestamped JSON files:
-- `github-trending-collector/data/github_trending_YYYYMMDD_HHMMSS.json`
-- `arxiv-collector-agent/data/arxiv_papers_YYYYMMDD_HHMMSS.json`
+- **Automatic Translation:** Non-English repositories automatically translated to English using Google Translate
+- **Text Cleaning:** README files cleaned of HTML, badges, emojis, and URLs
+- **Language Detection:** langdetect used to identify content language
+- **API Authentication:** GitHub token support for increased rate limits
+- **Historical Tracking:** Timestamps on all entries to track trends over time
+- **Optimized Queries:** MongoDB indexes on unique fields for fast lookups
+- **No Data Loss:** Each run creates new entries, historical data preserved
 
-This allows tracking trends over time without overwriting previous runs.
+## Notes
+
+- All data persisted in MongoDB with timestamps
+- Duplicate prevention via unique indexes
+- Both scrapers automatically save to MongoDB when run
+- Viewer tool connects to local MongoDB by default
