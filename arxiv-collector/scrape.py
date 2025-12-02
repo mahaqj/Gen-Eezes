@@ -1,5 +1,8 @@
 import arxiv
 from datetime import datetime, timedelta, timezone
+import sys
+sys.path.insert(0, '..')
+from mongodb_storage import MongoDBStorage
 
 class ArxivCollector:
     def __init__(self, max_results=300, days_back=365,categories=None):
@@ -57,7 +60,13 @@ class ArxivCollector:
 if __name__ == "__main__":
     collector = ArxivCollector(max_results=10, days_back=365) # set max_results and days_back here
     papers = collector.fetch_recent_papers()
+    print(f"\n{'='*60}")
     print(f"fetched {len(papers)} papers from the last {collector.days_back} days!")
+    print(f"{'='*60}")
     if papers:
-        print("example:")
+        print("\nexample:")
         print(papers[0])
+        print(f"\nsaving to MongoDB...")
+        db = MongoDBStorage()
+        db.save_arxiv_papers(papers)
+        db.get_collection_stats()
