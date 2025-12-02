@@ -160,15 +160,6 @@ class GitHubTrendingCollector:
 # generate github authentication token
 # $env:GITHUB_TOKEN="ghp_your_token_here"
 # python scrape.py
-# if __name__ == "__main__":
-#     github_token = os.getenv("GITHUB_TOKEN") # read from environment
-#     collector = GitHubTrendingCollector(period="daily", active_days=60,github_token=github_token) # period can be daily, weekly, or monthly
-#     data = collector.fetch_trending()
-#     print(f"active repos found: {len(data)}")
-#     if data:
-#         print("example repo:")
-#         print(data[0])
-
 if __name__ == "__main__":
     github_token = os.getenv("GITHUB_TOKEN") # read from environment
     collector = GitHubTrendingCollector(period="daily", active_days=60, github_token=github_token) # period can be daily, weekly, or mo

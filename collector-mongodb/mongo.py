@@ -32,6 +32,23 @@ def view_papers_by_category(db):
     for i, paper in enumerate(papers, 1):
         print(f"{i}. {paper['title']}\n")
 
+def view_recent_news(db):
+    news = db.get_recent_news(10)
+    print(f"\n recent {len(news)} tech news items:\n")
+    for i, item in enumerate(news, 1):
+        print(f"{i}. {item['title']}")
+        print(f"   Score: {item['score']} | Comments: {item['comments']}")
+        print(f"   {item['url']}\n")
+
+def view_news_by_score(db):
+    min_score = input("enter minimum score (default 100): ").strip()
+    min_score = int(min_score) if min_score.isdigit() else 100
+    news = db.get_news_by_score(min_score, limit=10)
+    print(f"\n {len(news)} news items with score >= {min_score}:\n")
+    for i, item in enumerate(news, 1):
+        print(f"{i}. {item['title']}")
+        print(f"   Score: {item['score']} | {item['url']}\n")
+
 def main():
     db = MongoDBStorage()
     print("\n" + "="*60)
@@ -43,7 +60,9 @@ def main():
         "2": view_repos_by_language,
         "3": view_recent_papers,
         "4": view_papers_by_category,
-        "5": lambda db: db.get_collection_stats()
+        "5": view_recent_news,
+        "6": view_news_by_score,
+        "7": lambda db: db.get_collection_stats()
     }
     
     while True:
@@ -51,17 +70,18 @@ def main():
         print("2. view repos by language")
         print("3. view recent arXiv papers")
         print("4. view papers by category")
-        print("5. view collection stats")
-        print("6. exit\n")
-        choice = input("choose option (1-6): ").strip()
-        
+        print("5. view recent tech news")
+        print("6. view tech news by score")
+        print("7. view mongo stats")
+        print("8. exit\n")
+        choice = input("choose option (1-8): ").strip()
         if choice in options:
             options[choice](db)
-        elif choice == "6":
+        elif choice == "8":
             print("exiting...\n")
             break
         else:
-            print(" invalid option\n")
+            print("invalid option\n")
 
 if __name__ == "__main__":
     main()

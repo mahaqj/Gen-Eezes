@@ -7,6 +7,7 @@ class MongoDBStorage:
         self.db = self.client[db_name]
         self.github_collection = self.db["github_repos"]
         self.arxiv_collection = self.db["arxiv_papers"]
+        self.news_collection = self.db["tech_news"]
         print(f" connected to mongodb database: {db_name}")
     
     def create_indexes(self): # create indexes for faster queries
@@ -58,4 +59,36 @@ class MongoDBStorage:
         print(f"\n{'='*60}")
         print(f"github repos stored: {github_count}")
         print(f"arxiv papers stored: {arxiv_count}")
+        print(f"{'='*60}\n")
+    
+    def save_tech_news(self, news_items): # save tech news to mongodb
+        if not news_items:
+            print("no news to save")
+            return
+        
+        for news in news_items:
+            news["scraped_at"] = datetime.utcnow()
+            try:
+                self.news_collection.insert_one(news)
+            except Exception as e:
+                print(f"error saving {news['title']}: {e}")
+        
+        print(f"saved {len(news_items)} news items to mongodb")
+    
+    def get_recent_news(self, limit=10): # get most recently scraped news
+        news = list(self.news_collection.find().sort("scraped_at", -1).limit(limit))
+        return news
+    
+    def get_news_by_score(self, min_score=100, limit=10): # get news by minimum score
+        news = list(self.news_collection.find({"score": {"$gte": min_score}}).sort("score", -1).limit(limit))
+        return news
+    
+    def get_collection_stats(self): # get stats about collections
+        github_count = self.github_collection.count_documents({})
+        arxiv_count = self.arxiv_collection.count_documents({})
+        news_count = self.news_collection.count_documents({})
+        print(f"\n{'='*60}")
+        print(f"github repos stored: {github_count}")
+        print(f"arxiv papers stored: {arxiv_count}")
+        print(f"tech news items stored: {news_count}")
         print(f"{'='*60}\n")
