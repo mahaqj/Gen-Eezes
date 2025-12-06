@@ -5,3 +5,6 @@ lxml
 langdetect
 googletrans-py
 pymongo
+sentence-transformers
+qdrant-client
+numpy

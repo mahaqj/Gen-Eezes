@@ -6,22 +6,28 @@
 
 ## Overview
 
-This data collection pipeline aggregates trending tech information from three sources: GitHub repositories, arXiv research papers, and HackerNews tech stories. All data is automatically stored in MongoDB for easy querying and trend analysis.
+Multi-agent data collection pipeline that aggregates trending tech information from three sources: **GitHub repositories**, **arXiv research papers**, and **HackerNews tech stories**. All data is stored in MongoDB with vector embeddings in Qdrant for semantic search capabilities.
 
 ## Project Structure
 
 ```
 Gen-Eezes/
-├── github-trending-collector/
-│   └── scrape.py              # GitHub trending scraper
-├── arxiv-collector/
-│   └── scrape.py              # arXiv paper scraper
-├── tech-news-collector/
-│   └── scrape.py              # HackerNews tech news scraper
-├── collector-mongodb/
-│   └── mongo.py               # Interactive data viewer
-├── mongodb_storage.py         # MongoDB storage class
-├── requirements.txt
+├── github-trending-collector/    # GitHub trending repos scraper
+├── arxiv-collector/              # arXiv research papers scraper
+├── tech-news-collector/          # HackerNews tech news scraper
+├── collector-mongodb/            # MongoDB data viewer
+├── embedding_pipeline/           # Vector embedding & storage
+│   ├── embed_all.py             # Main embedding pipeline
+│   ├── embedding_handler.py     # Embedding generation (all-MiniLM-L6-v2)
+│   ├── qdrant_storage.py        # Qdrant vector database interface
+│   └── embed_all_*.py           # Alternative pipeline variants
+├── tests/                        # Test & verification scripts
+│   ├── verify_qdrant.py         # Verify stored embeddings
+│   ├── test_embeddings.py       # Test embedding functionality
+│   └── verify_embeddings.py     # Additional embedding checks
+├── qdrant_storage/              # Persisted vector database
+├── mongodb_storage.py           # MongoDB interface
+├── requirements.txt             # Python dependencies
 └── README.md
 ```
 
@@ -36,201 +42,116 @@ pip install -r requirements.txt
 - MongoDB running on localhost:27017
 - Internet connection
 
-## GitHub Trending Collector
+## Quick Start
 
-**File:** `github-trending-collector/scrape.py`
-
-Scrapes GitHub's trending page and collects repository metadata.
-
-**Collected Data:**
-- Repository metadata (owner, name, stars, language, topics)
-- Cleaned README text
-- Activity dates (created, updated, pushed)
-- GitHub API data (forks, issues)
-
-**Features:**
-- Supports daily, weekly, monthly trending periods
-- Filters repos by activity (only updated in last N days)
-- Auto-detects language and translates non-English to English
-- Cleans README files (removes HTML, badges, emojis, URLs)
-- GitHub API authentication support for higher rate limits
-
-**Usage:**
+### 1. Collect Data
 
 ```bash
-# Set GitHub token (optional, increases rate limits from 60 to 5000 req/hour)
-$env:GITHUB_TOKEN="ghp_your_token_here"
-
+# GitHub trending repos
 cd github-trending-collector
 python scrape.py
-```
 
-**Configuration (in code):**
-- `period`: "daily", "weekly", "monthly"
-- `active_days`: Filter repos updated in last N days (default: 60)
+# arXiv research papers
+cd ../arxiv-collector
+python scrape.py
 
-## arXiv Paper Collector
-
-**File:** `arxiv-collector/scrape.py`
-
-Scrapes arXiv API for recent research papers in AI/ML categories.
-
-**Collected Data:**
-- Paper title, abstract, authors
-- Publication date and arXiv ID
-- Paper categories
-- PDF and abstract URLs
-
-**Categories Tracked:**
-cs.AI, cs.CL, cs.CV, cs.LG, cs.MA, cs.RO, cs.DC, cs.CR, cs.SY, stat.ML
-
-**Usage:**
-
-```bash
-cd arxiv-collector
+# HackerNews tech stories
+cd ../tech-news-collector
 python scrape.py
 ```
 
-**Configuration (in code):**
-- `max_results`: Maximum papers to fetch (default: 300)
-- `days_back`: Fetch papers from last N days (default: 365)
-
-## Tech News Collector
-
-**File:** `tech-news-collector/scrape.py`
-
-Scrapes HackerNews for trending tech news and discussions.
-
-**Collected Data:**
-- Story title and URL
-- Upvote score
-- Number of comments/discussion
-- Author and publication date
-- Story source
-
-**Features:**
-- Filters for tech-related stories (AI, ML, Python, Kubernetes, Docker, Cloud, etc.)
-- Minimum score threshold to ensure quality (default: 100 upvotes)
-- No API key required
-- Real-time trending tech industry news
-
-**Usage:**
+### 2. Generate Embeddings
 
 ```bash
-cd tech-news-collector
-python scrape.py
+# Process all MongoDB data and store embeddings in Qdrant
+cd embedding_pipeline
+python embed_all.py
 ```
 
-**Configuration (in code):**
-- `max_results`: Number of stories to fetch (default: 50)
-- `score_threshold`: Minimum upvotes to include (default: 100)
+### 3. Verify Embeddings
 
-## Data Viewer
+```bash
+# Verify embeddings stored in Qdrant
+python ../tests/verify_qdrant.py
+```
 
-**File:** `collector-mongodb/mongo.py`
-
-Interactive command-line tool to query and explore stored data.
-
-**Usage:**
+### 4. View Collected Data
 
 ```bash
 cd collector-mongodb
 python mongo.py
 ```
 
-**Menu Options:**
-1. View recent GitHub repos (last 10 with stars, language, description)
-2. Filter repos by programming language
-3. View recent arXiv papers (last 10 with authors, publish date)
-4. Filter papers by arXiv category
-5. View recent tech news (last 10 with scores and comments)
-6. Filter tech news by minimum score
-7. View collection statistics (total items stored)
-8. Exit
+## Data Collectors
 
-## MongoDB Storage
+### GitHub Trending Collector
+- **File:** `github-trending-collector/scrape.py`
+- **Collects:** Repository metadata, stars, language, topics, cleaned README text
+- **Features:** Supports daily/weekly/monthly trending, language detection, auto-translation
+- **Configuration:** Adjust period, active_days filter in code
 
-**Database:** `gen_eezes`
+### arXiv Paper Collector
+- **File:** `arxiv-collector/scrape.py`
+- **Collects:** Paper title, abstract, authors, categories, publication date
+- **Categories:** cs.AI, cs.CL, cs.CV, cs.LG, cs.MA, cs.RO, cs.DC, cs.CR, cs.SY, stat.ML
+- **Configuration:** Adjust max_results, days_back in code
 
-**Collections:**
+### HackerNews Tech Collector
+- **File:** `tech-news-collector/scrape.py`
+- **Collects:** Story title, URL, score, comments, author, publication date
+- **Features:** Tech keyword filtering, minimum score threshold
+- **Configuration:** Adjust max_results, score_threshold in code
+
+## Embedding Pipeline
+
+### Architecture
+- **Model:** all-MiniLM-L6-v2 (Sentence Transformers)
+- **Dimensions:** 384-dimensional vectors
+- **Database:** Qdrant (file-based persistence at `./qdrant_storage/`)
+- **Collections:** github_embeddings, arxiv_embeddings, news_embeddings
+
+### Main Pipeline
+```bash
+cd embedding_pipeline
+python embed_all.py
+```
+
+Process includes:
+1. Connect to MongoDB and load all collected data
+2. Initialize Qdrant with file-based storage
+3. Generate 384-dimensional embeddings for each document
+4. Store embeddings with metadata for semantic search
+
+## MongoDB Collections
 
 ### github_repos
-
-```json
-{
-  "owner": "username",
-  "name": "repo-name",
-  "full_name": "username/repo-name",
-  "description": "Repository description",
-  "language": "Python",
-  "topics": ["ai", "ml"],
-  "stars_trending": "1,234",
-  "stars_total": 12345,
-  "forks": 500,
-  "open_issues": 45,
-  "readme_text": "Cleaned README content",
-  "created_at": "2025-01-01T00:00:00Z",
-  "updated_at": "2025-12-01T00:00:00Z",
-  "pushed_at": "2025-12-01T00:00:00Z",
-  "repo_url": "https://github.com/username/repo-name",
-  "scraped_at": "2025-12-01T14:30:00Z"
-}
+```
+owner, name, description, language, topics, stars_total, stars_trending,
+readme_text, created_at, updated_at, repo_url, scraped_at
 ```
 
 ### arxiv_papers
-
-```json
-{
-  "arxiv_id": "2501.12345",
-  "title": "Paper Title",
-  "abstract": "Full abstract text",
-  "authors": ["Author One", "Author Two"],
-  "categories": ["cs.AI", "cs.LG"],
-  "published": "2025-12-01",
-  "pdf_url": "https://arxiv.org/pdf/2501.12345",
-  "arxiv_url": "https://arxiv.org/abs/2501.12345",
-  "scraped_at": "2025-12-01T14:30:00Z"
-}
+```
+arxiv_id, title, abstract, authors, categories, published, pdf_url, 
+arxiv_url, scraped_at
 ```
 
 ### tech_news
-
-```json
-{
-  "hackernews_id": 12345,
-  "title": "New AI Framework Released",
-  "url": "https://example.com/article",
-  "score": 2500,
-  "comments": 342,
-  "author": "username",
-  "published_at": "2025-12-01T14:30:00Z",
-  "source": "HackerNews",
-  "story_type": "story",
-  "scraped_at": "2025-12-01T14:35:00Z"
-}
+```
+hackernews_id, title, url, score, comments, author, published_at, source, scraped_at
 ```
 
-## Complete Workflow
+## Testing & Verification
 
 ```bash
-# 1. Set GitHub token (optional but recommended)
-$env:GITHUB_TOKEN="ghp_your_token_here"
+# Verify embeddings stored in Qdrant
+python tests/verify_qdrant.py
 
-# 2. Scrape GitHub trending repos
-cd github-trending-collector
-python scrape.py
+# Test embedding functionality
+python tests/test_embeddings.py
 
-# 3. Scrape arXiv papers
-cd ../arxiv-collector
-python scrape.py
-
-# 4. Scrape HackerNews tech stories
-cd ../tech-news-collector
-python scrape.py
-
-# 5. View all collected data
-cd ../collector-mongodb
-python mongo.py
+# Additional embedding verification
+python tests/verify_embeddings.py
 ```
 
 ## Key Features
@@ -239,15 +160,14 @@ python mongo.py
 - **Automatic Translation:** Non-English content automatically translated to English
 - **Text Cleaning:** README files and content cleaned (HTML, badges, emojis, URLs removed)
 - **Language Detection:** Automatic language detection via langdetect
-- **Quality Filtering:** Scores and activity thresholds ensure quality data
+- **Quality Filtering:** Score and activity thresholds ensure quality data
+- **Vector Search:** Semantic search via Qdrant embeddings (384-dim)
 - **Historical Tracking:** Timestamps on all entries for trend analysis
-- **Optimized Queries:** MongoDB indexes on unique fields for fast lookups
 - **No Data Loss:** Each run creates new entries, historical data preserved
-- **Interactive Viewer:** Easy-to-use CLI tool for querying data
 
 ## Why Three Data Sources?
 
-- **GitHub:** What open-source developers are building
+- **GitHub:** What open-source developers are actively building
 - **arXiv:** Cutting-edge AI/ML research breakthroughs
 - **HackerNews:** What the tech community is discussing and excited about
 
@@ -256,7 +176,7 @@ Combined = Complete view of tech ecosystem trends
 ## Notes
 
 - All data stored in MongoDB with timestamps for trend tracking
-- Duplicate prevention via unique indexes
+- Vector embeddings persisted to `./qdrant_storage/` (DO NOT DELETE)
 - Scrapers automatically save to MongoDB when run
 - Viewer connects to local MongoDB by default
 - All content automatically translated to English for consistency
