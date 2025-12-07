@@ -1,1 +1,8 @@
 data/
+geezes/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.vscode/
+*.egg-info/

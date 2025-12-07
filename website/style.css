@@ -1,0 +1,271 @@
+/* YOUR ORIGINAL LIGHT MODE CSS — unchanged */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background: #fce4f5; /* soft pink */
+  transition: background 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Added sparkles container to create twinkling effect in background */
+.sparkles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 105, 180, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(255, 105, 180, 0.6);
+  animation: sparkle 3s infinite;
+}
+
+/* Distribute sparkles across the screen with different animations */
+.sparkle:nth-child(1) {
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.sparkle:nth-child(2) {
+  top: 20%;
+  left: 80%;
+  animation-delay: 0.5s;
+}
+
+.sparkle:nth-child(3) {
+  top: 50%;
+  left: 15%;
+  animation-delay: 1s;
+}
+
+.sparkle:nth-child(4) {
+  top: 60%;
+  left: 85%;
+  animation-delay: 1.5s;
+}
+
+.sparkle:nth-child(5) {
+  top: 30%;
+  left: 50%;
+  animation-delay: 0.3s;
+}
+
+.sparkle:nth-child(6) {
+  top: 70%;
+  left: 30%;
+  animation-delay: 1.2s;
+}
+
+.sparkle:nth-child(7) {
+  top: 15%;
+  left: 60%;
+  animation-delay: 0.8s;
+}
+
+.sparkle:nth-child(8) {
+  top: 75%;
+  left: 70%;
+  animation-delay: 1.8s;
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  width: 140px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+}
+
+.brand {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ff69b4; /* pink */
+}
+
+.description {
+  background: #ffffff;
+  padding: 25px;
+  margin-top: 20px;
+  border-radius: 18px;
+  box-shadow: 0px 4px 12px rgba(255, 105, 180, 0.15);
+  transition: background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.description h2 {
+  color: #ff4fa3;
+  font-weight: 600;
+}
+
+.description p {
+  color: #333;
+  font-size: 15px;
+}
+
+.signup-box {
+  margin-top: 25px;
+  padding: 25px;
+  background: #ffbde6;
+  border-radius: 18px;
+  box-shadow: 0px 4px 12px rgba(255, 105, 180, 0.2);
+  transition: background 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.signup-box h3 {
+  margin-top: 0;
+  color: #d60073;
+}
+
+.signup-box p {
+  color: #6b0040;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.signup-form input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  outline: none;
+}
+
+.signup-form button {
+  padding: 12px;
+  background: #ff4fa3;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.signup-form button:hover {
+  background: #d60073;
+}
+
+/* ----------------------------- */
+/* DARK MODE + TOGGLE BUTTON     */
+/* ----------------------------- */
+
+/* Toggle Button */
+.toggle-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border: none;
+  font-size: 22px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: 0.3s ease;
+  z-index: 2;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.05);
+}
+
+/* DARK MODE STYLES */
+body.dark-mode {
+  background: #1a1a1a;
+  color: #f8d6ff;
+}
+
+/* Updated sparkles color for dark mode */
+body.dark-mode .sparkle {
+  background: rgba(200, 150, 255, 0.8);
+  box-shadow: 0 0 8px rgba(200, 150, 255, 0.6);
+}
+
+body.dark-mode .brand {
+  color: #ff9ce7;
+}
+
+body.dark-mode .description {
+  background: #2a2a2a;
+  box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .description h2 {
+  color: #ff9ce7;
+}
+
+body.dark-mode .description p {
+  color: #f2d9ff;
+}
+
+body.dark-mode .signup-box {
+  background: #3a2a38;
+  box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.07);
+}
+
+body.dark-mode .signup-box h3 {
+  color: #ff9ce7;
+}
+
+body.dark-mode .signup-box p {
+  color: #ffdaf7;
+}
+
+body.dark-mode .signup-form input {
+  background: #4b3a4b;
+  color: white;
+}
+
+body.dark-mode .signup-form button {
+  background: #ff7acb;
+}
+
+body.dark-mode .signup-form button:hover {
+  background: #ff4aa9;
+}
+
+body.dark-mode .toggle-btn {
+  background: #333;
+  color: white;
+}
