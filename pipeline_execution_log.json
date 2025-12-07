@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-12-07T22:39:11.776002",
+  "phase": "full_pipeline",
+  "context": {
+    "analysis_date": "December 07, 2025",
+    "week_ending": "2025-12-07",
+    "summary_stats": {
+      "total_keywords": 13,
+      "clusters_tracked": 3,
+      "weeks_analyzed": 8
+    },
+    "keyword_shifts": {
+      "rising_keywords": [
+        {
+          "keyword": "EMBEDDING",
+          "start": 1,
+          "end": 7,
+          "change": "+600.0%",
+          "direction": "RISING"
+        },
+        {
+          "keyword": "TRANSFORMER",
+          "start": 1,
+          "end": 6,
+          "change": "+500.0%",
+          "direction": "RISING"
+        },
+        {
+          "keyword": "LLM",
+          "start": 2,
+          "end": 9,
+          "change": "+350.0%",
+          "direction": "RISING"
+        },
+        {
+          "keyword": "AGENT",
+          "start": 0,
+          "end": 11,
+          "change": "+100.0%",
+          "direction": "RISING"
+        },
+        {
+          "keyword": "RAG",
+          "start": 0,
+          "end": 9,
+          "change": "+100.0%",
+          "direction": "RISING"
+        },
+        {
+          "keyword": "FRONTEND",
+          "start": 5,
+          "end": 7,
+          "change": "+40.0%",
+          "direction": "RISING"
+        }
+      ],
+      "falling_keywords": [
+        {
+          "keyword": "KUBERNETES",
+          "start": 12,
+          "end": 0,
+          "change": "-100.0%",
+          "direction": "FALLING"
+        },
+        {
+          "keyword": "DOCKER",
+          "start": 10,
+          "end": 0,
+          "change": "-100.0%",
+          "direction": "FALLING"
+        },
+        {
+          "keyword": "DEVOPS",
+          "start": 8,
+          "end": 0,
+          "change": "-100.0%",
+          "direction": "FALLING"
+        },
+        {
+          "keyword": "CI",
+          "start": 6,
+          "end": 0,
+          "change": "-100.0%",
+          "direction": "FALLING"
+        },
+        {
+          "keyword": "CD",
+          "start": 5,
+          "end": 0,
+          "change": "-100.0%",
+          "direction": "FALLING"
+        },
+        {
+          "keyword": "REACT",
+          "start": 9,
+          "end": 8,
+          "change": "-11.1%",
+          "direction": "FALLING"
+        }
+      ],
+      "stable_keywords": [
+        {
+          "keyword": "JAVASCRIPT",
+          "start": 7,
+          "end": 7,
+          "change": "+0.0%",
+          "direction": "STABLE"
+        }
+      ]
+    },
+    "cluster_insights": {
+      "ai_llm": {
+        "name": "Ai Llm",
+        "drift_severity": "EXTREME",
+        "size_change": "+93.3%",
+        "drift_magnitude": "126.0/100",
+        "interpretation": "Explosive growth in AI/LLM interest with increasing topic diversity"
+      },
+      "frontend": {
+        "name": "Frontend",
+        "drift_severity": "MINIMAL",
+        "size_change": "+0.0%",
+        "drift_magnitude": "5.2/100",
+        "interpretation": "Web technologies remain stable and reliable - foundational"
+      },
+      "devops": {
+        "name": "Devops",
+        "drift_severity": "EXTREME",
+        "size_change": "-66.7%",
+        "drift_magnitude": "119.5/100",
+        "interpretation": "Sharp decline in DevOps focus - shift to managed services"
+      }
+    },
+    "narrative": "This week's analysis reveals significant shifts in technology focus across our ecosystem:\n\nTREND SUMMARY:\n- 6 keywords showing growth trends\n- 6 keywords showing decline trends  \n- 1 keywords remaining stable\n\nKEY OBSERVATIONS:\n\n- EMBEDDING is the most explosive growth area (+600.0%)\n- KUBERNETES shows the steepest decline (-100.0%)\n- These patterns indicate a fundamental shift in developer priorities and technology adoption"
+  },
+  "newsletters": {},
+  "delivery_results": {
+    "nabeeha529@gmail.com": [
+      true,
+      "Email sent to nabeeha529@gmail.com"
+    ],
+    "mahaqj@gmail.com": [
+      true,
+      "Email sent to mahaqj@gmail.com"
+    ],
+    "ogs529@gmail.com": [
+      true,
+      "Email sent to ogs529@gmail.com"
+    ],
+    "anooshaali293@gmail.com": [
+      true,
+      "Email sent to anooshaali293@gmail.com"
+    ]
+  },
+  "logged_records": [
+    "6935bbdd447518240c608107",
+    "6935bbdd447518240c608108",
+    "6935bbdd447518240c608109",
+    "6935bbdd447518240c60810a"
+  ],
+  "errors": [],
+  "master_newsletter": {
+    "subject": "[USER_NAME], AI Dominates, DevOps Retreats: Your Weekly Tech Shift!",
+    "generated_at": "2025-12-07T22:39:32.494737",
+    "recipient_count": 4,
+    "template_based": true
+  }
+}
