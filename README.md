@@ -82,6 +82,15 @@ cd collector-mongodb
 python mongo.py
 ```
 
+### 5. Newsletter Signup Website
+
+```bash
+cd website
+python run_server.py
+```
+
+Visit `http://localhost:8000` to access the website. Users can sign up for the newsletter by entering their first name and email - data is automatically stored in MongoDB.
+
 ## Data Collectors
 
 ### GitHub Trending Collector
@@ -154,6 +163,37 @@ python tests/test_embeddings.py
 python tests/verify_embeddings.py
 ```
 
+## Newsletter Website
+
+**File:** `website/run_server.py`
+
+Interactive website for newsletter signups. Users enter their first name and email to subscribe.
+
+**Usage:**
+
+```bash
+cd website
+python run_server.py
+```
+
+Visit `http://localhost:8000`
+
+**Features:**
+- Clean, responsive UI with dark mode toggle
+- Form validation for first name and email
+- Real-time feedback on signup success/error
+- Newsletter data stored in MongoDB `users` collection
+- View all subscribers in data viewer (option 8-9 in mongo.py)
+
+**View Subscribers:**
+
+```bash
+cd collector-mongodb
+python mongo.py
+# Select option 8: View newsletter subscribers
+# Select option 9: View user statistics
+```
+
 ## Key Features
 
 - **Multi-Source Aggregation:** Combines GitHub, arXiv, and HackerNews in one place
@@ -162,6 +202,7 @@ python tests/verify_embeddings.py
 - **Language Detection:** Automatic language detection via langdetect
 - **Quality Filtering:** Score and activity thresholds ensure quality data
 - **Vector Search:** Semantic search via Qdrant embeddings (384-dim)
+- **Newsletter:** Web-based signup with MongoDB persistence
 - **Historical Tracking:** Timestamps on all entries for trend analysis
 - **No Data Loss:** Each run creates new entries, historical data preserved
 
