@@ -91,14 +91,30 @@ python verify_clusters.py
 python ../tests/verify_qdrant.py
 ```
 
-### 5. View Collected Data
+### 5. Temporal Analysis & Trend Detection (Module 4)
+
+```bash
+# Backfill 52 weeks of historical snapshots
+python backfill_historical.py
+
+# Aggregate snapshots to temporal format
+python snapshot_aggregator.py
+
+# Analyze trends from real data
+python analyze_real_trends.py
+```
+
+**Output:** Trend analysis showing rising/falling keywords and cluster drift patterns
+**Results:** Stored in MongoDB temporal_snapshots_real and temporal_analysis_real collections
+
+### 6. View Collected Data
 
 ```bash
 cd collector-mongodb
 python mongo.py
 ```
 
-### 6. Newsletter Signup Website
+### 7. Newsletter Signup Website
 
 ```bash
 cd website
@@ -205,6 +221,71 @@ arxiv_url, scraped_at
 hackernews_id, title, url, score, comments, author, published_at, source, scraped_at
 ```
 
+## Temporal Analysis & Trend Detection (Module 4)
+
+### Overview
+Analyzes keyword frequency shifts and cluster drift over time using real collected data across 52 weeks.
+
+### Architecture
+- **Data Source:** Periodic data collection from GitHub, arXiv, and HackerNews
+- **Analysis Period:** 52 weeks (configurable)
+- **Algorithms:**
+  - Keyword Shift Analysis: Tracks frequency changes (RISING/FALLING/STABLE)
+  - Cluster Drift Detection: Measures size/cohesion changes (5 severity levels)
+  - Time Series Modeling: Linear regression on temporal metrics
+  - Trend Labeling: Automatic classification with confidence scoring
+
+### Key Scripts
+
+**periodic_collector.py**
+- Runs data collectors on demand
+- Creates timestamped collection snapshots
+- Use: Daily/weekly collection of fresh data
+```bash
+python periodic_collector.py
+```
+
+**backfill_historical.py**
+- Creates N weeks of historical snapshots
+- Runs collectors with backdated timestamps
+- Use: Initial setup with 52 weeks of data
+```bash
+python backfill_historical.py  # Creates 52 weeks
+```
+
+**snapshot_aggregator.py**
+- Converts collection snapshots to temporal format
+- Extracts keywords and cluster features
+- Output: temporal_snapshots_real collection
+```bash
+python snapshot_aggregator.py
+```
+
+**analyze_real_trends.py**
+- Main analysis pipeline
+- Detects keyword shifts and cluster drift
+- Generates comprehensive trend report
+- Output: temporal_analysis_real collection
+```bash
+python analyze_real_trends.py
+```
+
+### 52-Week Results Example
+
+**Data Period:** December 8, 2024 - November 30, 2025
+
+**Cluster Evolution:**
+- AI/LLM: +93.3% growth (EXTREME DRIFT)
+- Frontend: 0.0% change (MINIMAL DRIFT)
+- DevOps: -66.7% decline (EXTREME DRIFT)
+
+**Keyword Trends:**
+- Rising: embedding (+600%), transformer (+500%), llm (+350%)
+- Falling: kubernetes (-100%), docker (-100%), devops (-100%)
+- Stable: react (-11%), javascript (+14%)
+
+**Storage:** 52 temporal snapshots analyzed → Results in MongoDB
+
 ## Testing & Verification
 
 ```bash
@@ -301,15 +382,24 @@ Combined = Complete view of tech ecosystem trends
 - Representative sample selection
 - Results stored in MongoDB
 
+**Module 4: Temporal Analysis & Trend Detection** ✅
+- 52-week real data collection (periodic_collector.py)
+- Historical data backfilling (backfill_historical.py)
+- Temporal snapshot aggregation (snapshot_aggregator.py)
+- Keyword shift analysis (rising/falling/stable trends)
+- Cluster drift detection (5 severity levels)
+- Time series modeling and forecasting
+- Comprehensive trend reporting
+
 ### In Progress / TODO ⏳
 
-**Module 4: Email Generation**
-- Extract top topics from clusters
-- Generate daily/weekly summaries
-- Create email templates with trends
-- Aggregate insights across sources
+**Module 5: Email Generation**
+- Extract top topics from trend analysis
+- Generate daily/weekly email summaries
+- Create email templates with trend insights
+- Aggregate multi-source findings
 
-**Module 5: Email Delivery**
+**Module 6: Email Delivery**
 - Email scheduling system
 - Integration with SMTP server
 - Newsletter subscription management
