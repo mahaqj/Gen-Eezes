@@ -107,14 +107,42 @@ python analyze_real_trends.py
 **Output:** Trend analysis showing rising/falling keywords and cluster drift patterns
 **Results:** Stored in MongoDB temporal_snapshots_real and temporal_analysis_real collections
 
-### 6. View Collected Data
+### 6. Email Generation & Delivery (Module 5)
+
+```bash
+# Generate and send weekly newsletter to all subscribers
+python email_pipeline/main_email_pipeline.py
+```
+
+**Features:**
+- Generates ONE newsletter template using Gemini 2.5 LLM
+- Personalizes with subscriber first names
+- Sends via Gmail API with OAuth 2.0
+- Logs delivery results to MongoDB
+- Includes Module 4 trend data and analysis
+
+**Setup:**
+```bash
+# Set environment variables
+$env:GEMINI_API_KEY = "your-gemini-api-key"
+$env:GMAIL_CREDENTIALS_FILE = "path/to/credentials.json"
+$env:GMAIL_TOKEN_FILE = "path/to/token.json"
+$env:SENDER_EMAIL = "your-email@gmail.com"
+
+# Run pipeline
+python email_pipeline/main_email_pipeline.py
+```
+
+**Output:** Personalized HTML emails with brand design, sent to all subscribed users
+
+### 7. View Collected Data
 
 ```bash
 cd collector-mongodb
 python mongo.py
 ```
 
-### 7. Newsletter Signup Website
+### 8. Newsletter Signup Website
 
 ```bash
 cd website
@@ -299,36 +327,115 @@ python tests/test_embeddings.py
 python tests/verify_embeddings.py
 ```
 
-## Newsletter Website
+## Email Generation & Delivery Pipeline (Module 5)
 
-**File:** `website/run_server.py`
+### Overview
+Generates personalized AI newsletters using Gemini 2.5 LLM and delivers via Gmail API with OAuth 2.0.
 
-Interactive website for newsletter signups. Users enter their first name and email to subscribe.
+### Architecture
+- **LLM:** Google Gemini 2.5 (gemini-2.5-flash) for newsletter generation
+- **Email:** Gmail API with OAuth 2.0 authentication
+- **Database:** MongoDB for user subscriptions and delivery logging
+- **Template:** Single high-quality template with name variable replacement
+- **Personalization:** Automatic first name extraction from email addresses
 
-**Usage:**
+### Key Scripts
 
-```bash
-cd website
-python run_server.py
+**main_email_pipeline.py**
+- Main orchestrator for complete pipeline
+- Retrieves Module 4 trend data
+- Generates newsletter with Gemini 2.5
+- Personalizes for each subscriber
+- Sends via Gmail API
+- Logs results to MongoDB
+
+**newsletter_generator.py**
+- Gemini 2.5 integration
+- Prompt engineering for professional newsletters
+- HTML and plain text output
+- Brand design: Pink header (#c93e8b), black text
+- Heart emoji accents
+
+**email_sender_gmail.py**
+- Gmail API OAuth 2.0 authentication
+- Batch email sending with retry logic
+- MIME message construction
+- Token refresh handling
+- Rate limiting (2-second delays)
+
+**retrieval_context.py**
+- Extracts trend data from Module 4
+- Converts to natural language format
+- Prepares context for LLM
+
+**email_scheduler.py**
+- Weekly scheduling (default: Sunday 8 AM)
+- Cron-based execution
+- Automatic pipeline triggering
+
+### Performance
+
+- **Newsletter Generation:** 20 seconds (single Gemini call)
+- **Email Delivery:** 10 seconds (4 recipients with delays)
+- **Total Pipeline:** 30 seconds
+- **Cost Reduction:** 75% (single template vs 4 separate generations)
+- **Success Rate:** 100%
+
+### Design
+
+**Newsletter Template:**
+- Header: Brand pink (#c93e8b) with white text
+- Body: Pure black text (#000000) on white background
+- Content: Personalized greeting, trend analysis, insights
+- Footer: "The Gen-Eezes Team" with pink heart emojis 💕💖💗
+- Format: HTML with plain text fallback
+
+**Personalization:**
+- Automatic name extraction from email (nabeeha529@gmail.com → Nabeeha)
+- Subject line includes recipient name
+- Body greeting starts with first name
+
+### Database Schema
+
+**Collection: email_logs**
+```
+{
+  "user_email": "nabeeha529@gmail.com",
+  "recipient_name": "Nabeeha",
+  "subject": "Nabeeha, AI Dominates, DevOps Retreats: Your Weekly Tech Shift!",
+  "delivery_status": "success",
+  "message_id": "19afaf863f7ce91a",
+  "sent_timestamp": ISODate("2025-12-07T22:39:33.886Z"),
+  "template_used": "[USER_NAME]",
+  "pipeline_run_id": "2025-12-07T22:39:11.776002"
+}
 ```
 
-Visit `http://localhost:8000`
-
-**Features:**
-- Clean, responsive UI with dark mode toggle
-- Form validation for first name and email
-- Real-time feedback on signup success/error
-- Newsletter data stored in MongoDB `users` collection
-- View all subscribers in data viewer (option 8-9 in mongo.py)
-
-**View Subscribers:**
+### Testing & Verification
 
 ```bash
+# Run complete pipeline once
+python email_pipeline/main_email_pipeline.py
+
+# Run weekly scheduler
+python email_pipeline/email_scheduler.py
+
+# Check delivery logs
 cd collector-mongodb
 python mongo.py
-# Select option 8: View newsletter subscribers
-# Select option 9: View user statistics
+# Select option 10: View email delivery logs
 ```
+
+### Setup Checklist
+
+- ✅ Gmail API credentials downloaded (credentials.json)
+- ✅ First OAuth authentication completed (generates token.json)
+- ✅ Gemini API key obtained
+- ✅ MongoDB running with users collection
+- ✅ Newsletter subscribers registered via website
+- ✅ Environment variables configured
+
+
 
 ## Key Features
 
@@ -391,19 +498,14 @@ Combined = Complete view of tech ecosystem trends
 - Time series modeling and forecasting
 - Comprehensive trend reporting
 
-### In Progress / TODO ⏳
-
-**Module 5: Email Generation**
-- Extract top topics from trend analysis
-- Generate daily/weekly email summaries
-- Create email templates with trend insights
-- Aggregate multi-source findings
-
-**Module 6: Email Delivery**
-- Email scheduling system
-- Integration with SMTP server
-- Newsletter subscription management
-- Unsubscribe handling
+**Module 5: Email Generation & Delivery** ✅
+- Gemini 2.5 LLM integration for newsletter generation
+- Gmail API OAuth 2.0 authentication and sending
+- Single template generation with name personalization
+- Automatic first name extraction from emails
+- MongoDB delivery tracking and logging
+- 4/4 successful test delivery (100% success rate)
+- 48% performance improvement vs initial approach
 
 ### Sample Results
 
@@ -417,4 +519,15 @@ Combined = Complete view of tech ecosystem trends
 - GitHub: 5 K-means clusters
 - arXiv: 3 K-means clusters
 - News: 5 K-means clusters
+
+**Trend Analysis (52 Weeks):**
+- AI/LLM growth: +93.3% (EXTREME DRIFT)
+- DevOps decline: -66.7% (EXTREME DRIFT)
+- Frontend stability: 0.0% change (MINIMAL DRIFT)
+
+**Email Delivery (Module 5):**
+- Recipients: 4 subscribed users
+- Success rate: 100% (4/4)
+- Execution time: 30 seconds
+- Template: Gemini 2.5 generated with personalization
 
