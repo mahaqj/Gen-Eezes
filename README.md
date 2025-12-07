@@ -21,6 +21,11 @@ Gen-Eezes/
 │   ├── embedding_handler.py     # Embedding generation (all-MiniLM-L6-v2)
 │   ├── qdrant_storage.py        # Qdrant vector database interface
 │   └── embed_all_*.py           # Alternative pipeline variants
+├── clustering_pipeline/          # Clustering & topic modeling
+│   ├── cluster_all.py           # Main clustering pipeline
+│   ├── clustering_handler.py    # Clustering algorithms (K-means, DBSCAN, HDBSCAN)
+│   ├── verify_clusters.py       # Verify clustering results
+│   └── __init__.py              # Module initialization
 ├── tests/                        # Test & verification scripts
 │   ├── verify_qdrant.py         # Verify stored embeddings
 │   ├── test_embeddings.py       # Test embedding functionality
@@ -68,21 +73,32 @@ cd embedding_pipeline
 python embed_all.py
 ```
 
-### 3. Verify Embeddings
+### 3. Clustering & Topic Modeling
+
+```bash
+# Cluster embeddings and extract topics
+cd clustering_pipeline
+python cluster_all.py
+
+# Verify clustering results
+python verify_clusters.py
+```
+
+### 4. Verify Embeddings
 
 ```bash
 # Verify embeddings stored in Qdrant
 python ../tests/verify_qdrant.py
 ```
 
-### 4. View Collected Data
+### 5. View Collected Data
 
 ```bash
 cd collector-mongodb
 python mongo.py
 ```
 
-### 5. Newsletter Signup Website
+### 6. Newsletter Signup Website
 
 ```bash
 cd website
@@ -130,6 +146,45 @@ Process includes:
 2. Initialize Qdrant with file-based storage
 3. Generate 384-dimensional embeddings for each document
 4. Store embeddings with metadata for semantic search
+
+## Clustering & Topic Modeling Pipeline
+
+### Overview
+Groups similar items into meaningful topic clusters using multiple clustering algorithms.
+
+### Architecture
+- **Algorithms:**
+  - K-Means: Partitions embeddings into k clusters with dynamic k based on dataset size
+  - DBSCAN: Density-based clustering (identifies noise points)
+  - HDBSCAN: Hierarchical density-based clustering
+- **Keyword Extraction:** TF-IDF vectorization to extract top keywords per cluster
+- **Representative Samples:** Selects closest points to cluster centroids
+- **Storage:** All results stored in MongoDB `clusters` collection
+
+### Main Pipeline
+```bash
+cd clustering_pipeline
+python cluster_all.py
+```
+
+Process includes:
+1. Load embeddings from Qdrant collections
+2. Perform K-means, DBSCAN, and HDBSCAN clustering
+3. Extract keywords using TF-IDF
+4. Select representative samples from each cluster
+5. Compute cluster statistics (size, centroid, std_dev)
+6. Store all results in MongoDB
+
+### Verification
+```bash
+python verify_clusters.py
+```
+
+Displays clustering results for each collection with:
+- Number of clusters per algorithm
+- Cluster sizes
+- Top keywords per cluster
+- Representative sample items
 
 ## MongoDB Collections
 
@@ -221,3 +276,55 @@ Combined = Complete view of tech ecosystem trends
 - Scrapers automatically save to MongoDB when run
 - Viewer connects to local MongoDB by default
 - All content automatically translated to English for consistency
+
+## Project Status
+
+### Completed Modules ✅
+
+**Module 1: Data Collection** ✅ 
+- GitHub trending repositories collector
+- arXiv research papers collector
+- HackerNews tech news collector
+- All data persisted to MongoDB
+
+**Module 2: Embedding & Preprocessing** ✅
+- Text cleaning (HTML, boilerplate removal)
+- Embedding generation (all-MiniLM-L6-v2, 384-dim)
+- Vector storage in Qdrant
+- 47 documents embedded and ready for clustering
+
+**Module 3: Clustering & Topic Modeling** ✅
+- K-Means clustering (primary algorithm)
+- DBSCAN clustering (for density-based analysis)
+- HDBSCAN clustering (hierarchical density-based)
+- Keyword extraction per cluster (TF-IDF)
+- Representative sample selection
+- Results stored in MongoDB
+
+### In Progress / TODO ⏳
+
+**Module 4: Email Generation**
+- Extract top topics from clusters
+- Generate daily/weekly summaries
+- Create email templates with trends
+- Aggregate insights across sources
+
+**Module 5: Email Delivery**
+- Email scheduling system
+- Integration with SMTP server
+- Newsletter subscription management
+- Unsubscribe handling
+
+### Sample Results
+
+**Current Data:**
+- 14 GitHub repositories
+- 10 arXiv papers  
+- 24 HackerNews stories
+- **Total: 48 documents clustered**
+
+**Clustering Results:**
+- GitHub: 5 K-means clusters
+- arXiv: 3 K-means clusters
+- News: 5 K-means clusters
+
