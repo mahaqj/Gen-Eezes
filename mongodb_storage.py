@@ -3,12 +3,14 @@ from datetime import datetime
 
 class MongoDBStorage:
     def __init__(self, db_name="gen_eezes", mongo_uri="mongodb://localhost:27017/"): # connect to mongodb
+        """Connect to MongoDB"""
         self.client = MongoClient(mongo_uri)
         self.db = self.client[db_name]
         self.github_collection = self.db["github_repos"]
         self.arxiv_collection = self.db["arxiv_papers"]
         self.news_collection = self.db["tech_news"]
-        print(f" connected to mongodb database: {db_name}")
+        self.users_collection = self.db["users"]
+        print(f"Connected to MongoDB database: {db_name}")
     
     def create_indexes(self): # create indexes for faster queries
         self.github_collection.create_index("full_name", unique=True)
@@ -92,3 +94,22 @@ class MongoDBStorage:
         print(f"arxiv papers stored: {arxiv_count}")
         print(f"tech news items stored: {news_count}")
         print(f"{'='*60}\n")
+
+    def save_user(self, first_name, email): # save newsletter signup to mongodb
+        user = {
+            "first_name": first_name,
+            "email": email,
+            "signup_date": datetime.utcnow()
+        }
+        
+        try:
+            result = self.users_collection.insert_one(user)
+            print(f"Uuser saved: {email}")
+            return result.inserted_id
+        except Exception as e:
+            print(f"error saving user: {e}")
+            return None
+    
+    def get_all_users(self): # get all newsletter subscribers
+        users = list(self.users_collection.find())
+        return users

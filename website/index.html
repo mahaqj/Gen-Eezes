@@ -49,13 +49,14 @@
 
         <!-- Newsletter Signup -->
         <section class="signup-box">
-            <h3>Join the Newsletter 🩷</h3>
+            <h3>Join the Newsletter</h3>
             <p>Get daily AI insights straight to your inbox.</p>
 
-            <form class="signup-form">
-                <input type="text" placeholder="Enter your first name" required>
-                <input type="email" placeholder="Enter your email address" required>
+            <form class="signup-form" id="signupForm">
+                <input type="text" id="firstName" placeholder="Enter your first name" required>
+                <input type="email" id="email" placeholder="Enter your email address" required>
                 <button type="submit">Sign Up</button>
+                <p id="message" style="margin-top: 10px; font-size: 14px;"></p>
             </form>
         </section>
     </div>
@@ -66,6 +67,44 @@
             document.body.classList.toggle("dark-mode");
             btn.textContent = 
                 document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+        });
+        
+        // handle form submission
+        const form = document.getElementById("signupForm");
+        const messageEl = document.getElementById("message");
+        
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById("firstName").value;
+            const email = document.getElementById("email").value;
+            
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        firstName: firstName,
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageEl.style.color = 'green';
+                    messageEl.textContent = data.message;
+                    form.reset();
+                } else {
+                    messageEl.style.color = 'red';
+                    messageEl.textContent = data.error;
+                }
+            } catch (error) {
+                messageEl.style.color = 'red';
+                messageEl.textContent = 'Error: ' + error.message;
+            }
         });
     </script>
 

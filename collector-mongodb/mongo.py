@@ -1,5 +1,6 @@
 import sys
-sys.path.insert(0, '..')
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mongodb_storage import MongoDBStorage
 
 def view_recent_repos(db):
@@ -49,6 +50,19 @@ def view_news_by_score(db):
         print(f"{i}. {item['title']}")
         print(f"   Score: {item['score']} | {item['url']}\n")
 
+def view_newsletter_users(db):
+    users = db.get_all_users()
+    print(f"\n newsletter subscribers: {len(users)}\n")
+    for i, user in enumerate(users, 1):
+        signup_date = user.get('signup_date', 'N/A')
+        print(f"{i}. {user['first_name']} | {user['email']}")
+        print(f"   Signed up: {signup_date}\n")
+
+def view_user_stats(db):
+    user_count = db.users_collection.count_documents({})
+    print(f"\n newsletter statistics:")
+    print(f" total subscribers: {user_count}\n")
+
 def main():
     db = MongoDBStorage()
     print("\n" + "="*60)
@@ -62,7 +76,9 @@ def main():
         "4": view_papers_by_category,
         "5": view_recent_news,
         "6": view_news_by_score,
-        "7": lambda db: db.get_collection_stats()
+        "7": lambda db: db.get_collection_stats(),
+        "8": view_newsletter_users,
+        "9": view_user_stats
     }
     
     while True:
@@ -73,11 +89,13 @@ def main():
         print("5. view recent tech news")
         print("6. view tech news by score")
         print("7. view mongo stats")
-        print("8. exit\n")
-        choice = input("choose option (1-8): ").strip()
+        print("8. view newsletter subscribers")
+        print("9. view user statistics")
+        print("10. exit\n")
+        choice = input("choose option (1-10): ").strip()
         if choice in options:
             options[choice](db)
-        elif choice == "8":
+        elif choice == "10":
             print("exiting...\n")
             break
         else:
